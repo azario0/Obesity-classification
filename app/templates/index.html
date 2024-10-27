@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obesity Class Prediction</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* Previous styles remain the same */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --error: #dc2626;
+            --error-bg: #fee2e2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background: var(--background);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: var(--error-bg);
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background: var(--background);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .result h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .result p {
+            margin: 0.5rem 0;
+            color: var(--secondary);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Obesity Class Prediction</h1>
+        <form id="predictionForm" method="POST">
+            <div class="progress-bar"></div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="Sex">Sex</label>
+                    <select id="Sex" name="Sex" required>
+                        <option value="0">Male</option>
+                        <option value="1">Female</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Age">Age (years)</label>
+                    <input type="number" id="Age" name="Age" min="1" max="120" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Height">Height (cm)</label>
+                    <input type="number" id="Height" name="Height" min="50" max="250" step="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Overweight_Obese_Family">Family History of Obesity</label>
+                    <select id="Overweight_Obese_Family" name="Overweight_Obese_Family" required>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Consumption_of_Fast_Food">Fast Food Consumption</label>
+                    <select id="Consumption_of_Fast_Food" name="Consumption_of_Fast_Food" required>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Frequency_of_Consuming_Vegetables">Vegetable Consumption</label>
+                    <select id="Frequency_of_Consuming_Vegetables" name="Frequency_of_Consuming_Vegetables" required>
+                        <option value="1">Rarely</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Always</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Number_of_Main_Meals_Daily">Daily Main Meals</label>
+                    <select id="Number_of_Main_Meals_Daily" name="Number_of_Main_Meals_Daily" required>
+                        <option value="1">1-2 meals</option>
+                        <option value="2">3 meals</option>
+                        <option value="3">More than 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Food_Intake_Between_Meals">Snacking Frequency</label>
+                    <select id="Food_Intake_Between_Meals" name="Food_Intake_Between_Meals" required>
+                        <option value="1">Rarely</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Always</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Smoking">Smoking Status</label>
+                    <select id="Smoking" name="Smoking" required>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Liquid_Intake_Daily">Daily Liquid Intake</label>
+                    <select id="Liquid_Intake_Daily" name="Liquid_Intake_Daily" required>
+                        <option value="1">Less than 1L</option>
+                        <option value="2">1-2L</option>
+                        <option value="3">More than 2L</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Calculation_of_Calorie_Intake">Calorie Tracking</label>
+                    <select id="Calculation_of_Calorie_Intake" name="Calculation_of_Calorie_Intake" required>
+                        <option value="1">Yes</option>
+                        <option value="2">No</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Physical_Excercise">Weekly Exercise</label>
+                    <select id="Physical_Excercise" name="Physical_Excercise" required>
+                        <option value="1">No exercise</option>
+                        <option value="2">1-2 days</option>
+                        <option value="3">3-4 days</option>
+                        <option value="4">5-6 days</option>
+                        <option value="5">Daily</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Schedule_Dedicated_to_Technology">Technology Usage</label>
+                    <select id="Schedule_Dedicated_to_Technology" name="Schedule_Dedicated_to_Technology" required>
+                        <option value="1">0-2 hours</option>
+                        <option value="2">3-5 hours</option>
+                        <option value="3">5+ hours</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="Type_of_Transportation_Used">Transportation Mode</label>
+                    <select id="Type_of_Transportation_Used" name="Type_of_Transportation_Used" required>
+                        <option value="1">Car</option>
+                        <option value="2">Motorcycle</option>
+                        <option value="3">Bicycle</option>
+                        <option value="4">Public Transport</option>
+                        <option value="5">Walking</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <button type="submit">Predict Obesity Class</button>
+        </form>
+        
+        {% if prediction %}
+        <div class="result">
+            <h2>Predicted Class: {{ prediction }}</h2>
+            <p>Class 0: Underweight</p>
+            <p>Class 1: Normal Weight</p>
+            <p>Class 2: Overweight</p>
+            <p>Class 3: Obesity</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Animate form appearance
+        gsap.to('.container', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+        });
+
+        // Form progress tracking
+        const form = document.getElementById('predictionForm');
+        const inputs = form.querySelectorAll('input, select');
+        const progressBar = document.querySelector('.progress-bar::after');
+
+        function updateProgress() {
+            const total = inputs.length;
+            let filled = 0;
+            inputs.forEach(input => {
+                if (input.value) filled++;
+            });
+            const progress = (filled / total) * 100;
+            document.querySelector('.progress-bar').style.setProperty('--progress', `${progress}%`);
+            progressBar.style.width = `${progress}%`;
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('change', updateProgress);
+        });
+
+        // Smooth form submission
+        form.addEventListener('submit', (e) => {
+            const button = form.querySelector('button');
+            button.style.opacity = '0.7';
+            button.textContent = 'Processing...';
+        });
+
+        // Animate result appearance if it exists
+        if (document.querySelector('.result')) {
+            gsap.to('.result', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.3,
+                ease: 'power3.out'
+            });
+        }
+    </script>
+</body>
+</html>
